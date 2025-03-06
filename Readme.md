@@ -1,5 +1,7 @@
 # Minimal Timer 
 
+<img src="https://github.com/asadal/minimal-timer/blob/main/images/minimal-timer.png width="300">
+
 구글 크롬용 Minimal Timer 확장 프로그램
 
 ## 주요 기능
