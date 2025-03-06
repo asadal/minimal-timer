@@ -155,3 +155,35 @@ button:focus {
 .time-input-buttons button:last-child:hover {
   background-color: #2563eb;
 }
+
+/* 새로운 화살표 버튼 스타일 */
+.chevron-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+}
+
+.chevron-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 50%;
+}
+
+.chevron-button:active {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* 화살표 버튼 포커스 테두리 제거 */
+.chevron-button:focus {
+  outline: none;
+}
+
+/* 모든 버튼에 적용하고 싶다면 */
+button:focus {
+  outline: none;
+}

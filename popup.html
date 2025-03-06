@@ -16,35 +16,43 @@
         </svg>
       </button>
     </div>
-    
+
     <div class="flex flex-col items-center justify-center w-full h-full">
       <div class="flex items-center justify-center space-x-4 mb-6">
         <!-- 분 컨트롤 -->
         <div class="flex flex-col items-center">
-          <button id="min-up" class="w-8 h-5 rounded border border-gray-300 flex items-center justify-center mb-1 hover:bg-gray-100">
-            <span class="text-xs">▲</span>
-          </button>
-          <div id="minutes" class="text-6xl font-bold cursor-pointer">15</div>
-          <button id="min-down" class="w-8 h-5 rounded border border-gray-300 flex items-center justify-center mt-1 hover:bg-gray-100">
-            <span class="text-xs">▼</span>
-          </button>
+            <button id="min-up" class="chevron-button up-button">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 15L12 9L18 15" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div id="minutes" class="text-6xl font-bold cursor-pointer">15</div>
+            <button id="min-down" class="chevron-button down-button">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
         </div>
-        
+
         <!-- 구분자 -->
         <div class="time-separator text-6xl font-bold">:</div>
-        
-        <!-- 초 컨트롤 -->
+
+        <!-- 초 컨트롤에도 동일하게 적용 -->
         <div class="flex flex-col items-center">
-          <button id="sec-up" class="w-8 h-5 rounded border border-gray-300 flex items-center justify-center mb-1 hover:bg-gray-100">
-            <span class="text-xs">▲</span>
-          </button>
-          <div id="seconds" class="text-6xl font-bold cursor-pointer">00</div>
-          <button id="sec-down" class="w-8 h-5 rounded border border-gray-300 flex items-center justify-center mt-1 hover:bg-gray-100">
-            <span class="text-xs">▼</span>
-          </button>
+            <button id="sec-up" class="chevron-button up-button">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 15L12 9L18 15" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div id="seconds" class="text-6xl font-bold cursor-pointer">00</div>
+            <button id="sec-down" class="chevron-button down-button">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
         </div>
       </div>
-      
+
       <div class="flex items-center justify-center space-x-4 mt-6">
         <button id="start-button" class="w-24 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100">
           <div class="play-icon"></div>
@@ -55,7 +63,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- 시간 입력 모달 (분) -->
   <div id="minutes-input-modal" class="time-input-modal">
     <div class="time-input-container">
@@ -67,7 +75,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- 시간 입력 모달 (초) -->
   <div id="seconds-input-modal" class="time-input-modal">
     <div class="time-input-container">
@@ -79,7 +87,7 @@
       </div>
     </div>
   </div>
-  
+
   <script src="popup.js"></script>
 </body>
 </html>
