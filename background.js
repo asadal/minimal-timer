@@ -237,6 +237,10 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
     
     // 알림 표시
     showNotification();
+    
+    // 배지 설정 - 타이머 종료 표시
+    chrome.action.setBadgeText({text: "종료"});
+    chrome.action.setBadgeBackgroundColor({color: "#F87171"});
   }
 });
 

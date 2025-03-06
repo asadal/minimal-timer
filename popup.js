@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
   console.log("팝업 로드됨");
+  
+  // 팝업이 열릴 때 배지 제거
+  chrome.action.setBadgeText({text: ""});
 
   // DOM 요소
   const minutesDisplay = document.getElementById('minutes');
