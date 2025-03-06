@@ -85,25 +85,34 @@ function startBackgroundTimer() {
 function showNotification() {
   console.log('알림 표시 시도');
   
-  // Chrome의 알림 API를 사용해 알림 표시
-  chrome.notifications.create({
-    type: "basic",
-    iconUrl: chrome.runtime.getURL("images/icon128.png"),
-    title: "Minimal Timer",
-    message: "타이머가 종료되었습니다!",
-    requireInteraction: true,  // 사용자가 직접 닫을 때까지 유지
-    priority: 2,               // 최대 우선순위 (0-2)
-    silent: false,             // 소리 재생
-    buttons: [                 // 버튼 추가
-      { title: "확인" },
-      { title: "5분 더" }
-    ]
-  }, function(notificationId) {
-    console.log('알림 생성됨:', notificationId);
-    
-    // 알림 ID 저장
-    lastNotificationId = notificationId;
-  });
+  try {
+    // Chrome의 알림 API를 사용해 알림 표시
+    chrome.notifications.create({
+      type: "basic",
+      iconUrl: chrome.runtime.getURL("images/icon128.png"),
+      title: "Minimal Timer",
+      message: "타이머가 종료되었습니다!",
+      requireInteraction: true,  // 사용자가 직접 닫을 때까지 유지
+      priority: 2,               // 최대 우선순위 (0-2)
+      silent: true,              // 소리 재생 안 함
+      buttons: [                 // 버튼 추가
+        { title: "확인" },
+        { title: "5분 더" }
+      ]
+    }, function(notificationId) {
+      if (chrome.runtime.lastError) {
+        console.error('알림 생성 오류:', chrome.runtime.lastError);
+        return;
+      }
+      
+      console.log('알림 생성됨:', notificationId);
+      
+      // 알림 ID 저장
+      lastNotificationId = notificationId;
+    });
+  } catch (error) {
+    console.error('알림 생성 중 예외 발생:', error);
+  }
 }
 
 // 알림 버튼 클릭 처리
@@ -189,8 +198,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   }
   else if (request.type === "notification") {
     // 알림 요청
-    showNotification();
-    sendResponse({ success: true });
+    console.log('백그라운드에서 알림 요청 수신');
+    try {
+      showNotification();
+      sendResponse({ success: true });
+    } catch (error) {
+      console.error('알림 처리 중 오류:', error);
+      sendResponse({ success: false, error: error.message });
+    }
   } 
   else if (request.type === "createWindow") {
     // 새 창 생성 요청
@@ -235,8 +250,11 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
       timerInterval = null;
     }
     
-    // 알림 표시
-    showNotification();
+    // 알림 표시 - 간단한 딜레이 후 실행 (서비스 워커가 안정화되도록)
+    setTimeout(() => {
+      console.log('알림 딜레이 후 실행');
+      showNotification();
+    }, 500);
     
     // 배지 설정 - 타이머 종료 표시
     chrome.action.setBadgeText({text: "종료"});

@@ -272,8 +272,10 @@ document.addEventListener('DOMContentLoaded', function() {
           });
         }
         
-        // 알림 요청
-        notifyUser();
+        // 알림 요청 - 안정성을 위해 지연 실행
+        setTimeout(() => {
+          notifyUser();
+        }, 100);
         return;
       }
       
@@ -368,9 +370,34 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 알림 기능
   function notifyUser() {
+    console.log('팝업에서 알림 요청');
     chrome.runtime.sendMessage({
       type: "notification"
     }, function(response) {
+      if (chrome.runtime.lastError) {
+        console.error('알림 요청 오류:', chrome.runtime.lastError);
+        
+        // 오류 발생 시 직접 알림 생성 시도
+        try {
+          chrome.notifications.create({
+            type: "basic",
+            iconUrl: chrome.runtime.getURL("images/icon128.png"),
+            title: "Minimal Timer",
+            message: "타이머가 종료되었습니다!",
+            requireInteraction: true,
+            priority: 2,
+            silent: true,
+            buttons: [
+              { title: "확인" },
+              { title: "5분 더" }
+            ]
+          });
+        } catch (err) {
+          console.error('직접 알림 생성 실패:', err);
+        }
+        return;
+      }
+      
       console.log('알림 요청 응답:', response);
     });
   }
