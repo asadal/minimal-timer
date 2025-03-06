@@ -88,7 +88,7 @@ function showNotification() {
   // Chrome의 알림 API를 사용해 알림 표시
   chrome.notifications.create({
     type: "basic",
-    iconUrl: "images/icon128.png",
+    iconUrl: chrome.runtime.getURL("images/icon128.png"),
     title: "Minimal Timer",
     message: "타이머가 종료되었습니다!",
     requireInteraction: true,  // 사용자가 직접 닫을 때까지 유지
