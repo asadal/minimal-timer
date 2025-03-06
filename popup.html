@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomodoro Timer</title>
+  <link rel="stylesheet" href="tailwind.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" class="w-full h-full flex flex-col items-center justify-center p-4 bg-white">
+    <div class="absolute top-2 right-2">
+      <button id="pin-button" class="text-red-500 hover:text-red-600">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 11.586V6h2V4H7v2h2v5.586l-2.707 2.707L7 15h4v5h2v-5h4l.707-.707L15 11.586z" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="flex flex-col items-center justify-center w-full h-full">
+      <div class="flex items-center justify-center space-x-4 mb-6">
+        <!-- 분 컨트롤 -->
+        <div class="flex flex-col items-center">
+          <button id="min-up" class="w-8 h-5 rounded border border-gray-300 flex items-center justify-center mb-1 hover:bg-gray-100">
+            <span class="text-xs">▲</span>
+          </button>
+          <div id="minutes" class="text-6xl font-bold cursor-pointer">15</div>
+          <button id="min-down" class="w-8 h-5 rounded border border-gray-300 flex items-center justify-center mt-1 hover:bg-gray-100">
+            <span class="text-xs">▼</span>
+          </button>
+        </div>
+        
+        <!-- 구분자 -->
+        <div class="time-separator text-6xl font-bold">:</div>
+        
+        <!-- 초 컨트롤 -->
+        <div class="flex flex-col items-center">
+          <button id="sec-up" class="w-8 h-5 rounded border border-gray-300 flex items-center justify-center mb-1 hover:bg-gray-100">
+            <span class="text-xs">▲</span>
+          </button>
+          <div id="seconds" class="text-6xl font-bold cursor-pointer">00</div>
+          <button id="sec-down" class="w-8 h-5 rounded border border-gray-300 flex items-center justify-center mt-1 hover:bg-gray-100">
+            <span class="text-xs">▼</span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="flex items-center justify-center space-x-4 mt-6">
+        <button id="start-button" class="w-24 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100">
+          <div class="play-icon"></div>
+        </button>
+        <button id="stop-button" class="w-24 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100">
+          <div class="stop-icon"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 시간 입력 모달 (분) -->
+  <div id="minutes-input-modal" class="time-input-modal">
+    <div class="time-input-container">
+      <h3>분 설정</h3>
+      <input type="number" id="minutes-input" min="0" max="99" step="1">
+      <div class="time-input-buttons">
+        <button id="minutes-cancel">취소</button>
+        <button id="minutes-confirm">확인</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 시간 입력 모달 (초) -->
+  <div id="seconds-input-modal" class="time-input-modal">
+    <div class="time-input-container">
+      <h3>초 설정</h3>
+      <input type="number" id="seconds-input" min="0" max="59" step="1">
+      <div class="time-input-buttons">
+        <button id="seconds-cancel">취소</button>
+        <button id="seconds-confirm">확인</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
