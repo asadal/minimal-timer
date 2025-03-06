@@ -16,7 +16,18 @@ chrome.storage.local.get('timer', function(data) {
   
   if (data.timer && data.timer.isRunning) {
     timerState = data.timer;
-    startBackgroundTimer();
+    
+    // 서비스 워커가 재시작된 경우 타이머 복원
+    const now = Date.now();
+    if (timerState.endTime > now) {
+      startBackgroundTimer();
+    } else if (timerState.isRunning) {
+      // 종료 시간이 지났지만 타이머가 실행 중인 상태라면 알림 표시
+      timerState.isRunning = false;
+      timerState.totalSeconds = 0;
+      chrome.storage.local.set({ timer: timerState });
+      showNotification();
+    }
   }
 });
 
@@ -25,7 +36,11 @@ function startBackgroundTimer() {
   // 이미 실행 중인 타이머가 있으면 정지
   if (timerInterval) {
     clearInterval(timerInterval);
+    timerInterval = null;
   }
+  
+  // 기존 알람 제거
+  chrome.alarms.clear("timerAlarm");
   
   console.log('백그라운드 타이머 시작:', timerState);
   
@@ -37,7 +52,12 @@ function startBackgroundTimer() {
     timerState.endTime = now + (timerState.totalSeconds * 1000);
   }
   
-  // 1초마다 타이머 상태 업데이트
+  // 알람 생성 - 타이머가 완료될 때 정확히 발생
+  const minutesUntilEnd = Math.max(0, (timerState.endTime - now) / 1000 / 60);
+  chrome.alarms.create("timerAlarm", { delayInMinutes: minutesUntilEnd });
+  console.log('알람 설정:', minutesUntilEnd, '분 후 실행');
+  
+  // UI 업데이트를 위한 interval (UI 업데이트는 있어도 Alarm이 주 역할)
   timerInterval = setInterval(function() {
     const currentTime = Date.now();
     const remainingMs = Math.max(0, timerState.endTime - currentTime);
@@ -49,23 +69,14 @@ function startBackgroundTimer() {
     timerState.totalSeconds = remainingSeconds;
     timerState.lastUpdated = currentTime;
     
-    // 남은 시간이 없으면 타이머 종료
+    // 상태 저장
+    chrome.storage.local.set({ timer: timerState });
+    
+    // 남은 시간이 없으면 interval 정지 (알람이 알림을 처리)
     if (remainingSeconds <= 0) {
-      console.log('타이머 종료!');
+      console.log('타이머 종료! (interval에서 감지)');
       clearInterval(timerInterval);
       timerInterval = null;
-      
-      timerState.isRunning = false;
-      timerState.totalSeconds = 0;
-      
-      // 저장
-      chrome.storage.local.set({ timer: timerState });
-      
-      // 알림 표시
-      showNotification();
-    } else {
-      // 상태 저장
-      chrome.storage.local.set({ timer: timerState });
     }
   }, 1000);
 }
@@ -144,6 +155,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       clearInterval(timerInterval);
       timerInterval = null;
     }
+    // 알람 제거
+    chrome.alarms.clear("timerAlarm");
+    
     timerState = request.timerState;
     timerState.isRunning = false;
     chrome.storage.local.set({ timer: timerState });
@@ -155,6 +169,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       clearInterval(timerInterval);
       timerInterval = null;
     }
+    // 알람 제거
+    chrome.alarms.clear("timerAlarm");
+    
     timerState = request.timerState;
     timerState.isRunning = false;
     chrome.storage.local.set({ timer: timerState });
@@ -198,6 +215,29 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   }
   
   // 비동기 응답이 필요하지 않은 경우 여기서는 true를 반환하지 않음
+});
+
+// 알람 이벤트 리스너
+chrome.alarms.onAlarm.addListener(function(alarm) {
+  if (alarm.name === "timerAlarm") {
+    console.log('알람 발생: 타이머 종료!');
+    
+    // 타이머 상태 업데이트
+    timerState.isRunning = false;
+    timerState.totalSeconds = 0;
+    
+    // 상태 저장
+    chrome.storage.local.set({ timer: timerState });
+    
+    // 인터벌이 아직 실행 중이면 정지
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    
+    // 알림 표시
+    showNotification();
+  }
 });
 
 // 스토리지 변경 감지
