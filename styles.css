@@ -1,189 +1,257 @@
 /* 기본 스타일 */
-html, body {
-  width: 320px !important;
-  height: 480px !important;
-  min-width: 320px !important;
-  min-height: 480px !important;
-  margin: 0;
-  padding: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  overflow: hidden;
+html,
+body {
+    width: 320px !important;
+    height: 480px !important;
+    min-width: 320px !important;
+    min-height: 480px !important;
+    margin: 0;
+    padding: 0;
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Oxygen,
+        Ubuntu,
+        Cantarell,
+        "Open Sans",
+        "Helvetica Neue",
+        sans-serif;
+    overflow: hidden;
 }
 
 body {
-  position: relative;
+    position: relative;
+    border: 1px solid #e5e7eb;
 }
 
 #app {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-/* 재생 버튼 아이콘 */
+/* 타이머 레이아웃 */
+.timer-layout {
+    display: grid;
+    grid-template-columns: 1fr 3fr 1fr;
+    grid-template-rows: auto;
+    grid-template-areas: "left-arrows timer-display right-arrows";
+    width: 100%;
+    height: 280px;
+    background-color: #f1f1f1;
+    margin-top: 40px;
+}
+
+.timer-display {
+    grid-area: timer-display;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.time-text {
+    font-size: 70px; /* 크기 증가 */
+    font-weight: 800; /* 더 굵게 */
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* 타이머 활성화 시 색상 */
+.time-active {
+    color: #ef4444 !important; /* 빨간색 (red-500) */
+}
+
+.left-arrows {
+    grid-area: left-arrows;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 40px 0;
+}
+
+.right-arrows {
+    grid-area: right-arrows;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 40px 0;
+}
+
+/* 화살표 버튼 */
+.arrow-button {
+    background: none;
+    border: none;
+    width: 100%;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.arrow-button.up {
+    margin-bottom: auto;
+}
+
+.arrow-button.down {
+    margin-top: auto;
+}
+
+/* 컨트롤 버튼 */
+.control-buttons {
+    margin-top: auto;
+    padding-top: 40px;
+}
+
+.control-button {
+    background-color: #f1f1f1;
+    border: none;
+    height: 48px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.control-button:hover {
+    background-color: #e5e5e5;
+}
+
+/* 버튼 아이콘 */
 .play-icon {
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 8px 0 8px 12px;
-  border-color: transparent transparent transparent #333;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 0 10px 16px;
+    border-color: transparent transparent transparent #333;
 }
 
-/* 정지 버튼 아이콘 */
 .stop-icon {
-  width: 12px;
-  height: 12px;
-  background-color: #333;
+    width: 16px;
+    height: 16px;
+    background-color: #333;
 }
 
-/* 일시정지 아이콘 */
 .pause-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 16px;
-  gap: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 16px;
+    gap: 4px;
 }
 
 .pause-icon:before,
 .pause-icon:after {
-  content: '';
-  width: 4px;
-  height: 16px;
-  background-color: #333;
-  display: block;
+    content: "";
+    width: 6px;
+    height: 16px;
+    background-color: #333;
+    display: block;
 }
 
-/* 고정 창 스타일 */
+/* 헤더 스타일 */
+.header {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    position: relative;
+}
+
+.header h1 {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* 핀 버튼 */
+.pin-button {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background-color: #f1f1f1;
+    padding: 6px;
+    border-radius: 2px;
+}
+
+/* 고정 창 */
 body.pinned {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: white;
-  z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    z-index: 1000;
 }
 
-/* 화살표 버튼 호버 효과 강화 */
-#min-up:hover,
-#min-down:hover,
-#sec-up:hover,
-#sec-down:hover {
-  background-color: #f3f4f6;
-  border-color: #9ca3af;
-}
-
-/* 컨트롤 버튼 호버 효과 강화 */
-#start-button:hover,
-#stop-button:hover {
-  background-color: #f3f4f6;
-  border-color: #9ca3af;
-}
-
-/* 포커스 아웃라인 */
-button:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-/* 수치 입력 모달 */
+/* 모달 창 */
 .time-input-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  justify-content: center;
-  align-items: center;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
 }
 
 .time-input-container {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 200px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 200px;
 }
 
 .time-input-container h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 18px;
-  text-align: center;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+    text-align: center;
 }
 
 .time-input-container input {
-  width: 100%;
-  padding: 8px;
-  font-size: 24px;
-  text-align: center;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-bottom: 15px;
+    width: 100%;
+    padding: 8px;
+    font-size: 24px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 15px;
 }
 
 .time-input-buttons {
-  display: flex;
-  justify-content: space-between;
+    display: flex;
+    justify-content: space-between;
 }
 
 .time-input-buttons button {
-  padding: 8px 16px;
-  background-color: #f3f4f6;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  cursor: pointer;
+    padding: 8px 16px;
+    background-color: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 .time-input-buttons button:hover {
-  background-color: #e5e7eb;
+    background-color: #e5e7eb;
 }
 
 .time-input-buttons button:last-child {
-  background-color: #3b82f6;
-  color: white;
-  border-color: #2563eb;
+    background-color: #3b82f6;
+    color: white;
+    border-color: #2563eb;
 }
 
 .time-input-buttons button:last-child:hover {
-  background-color: #2563eb;
-}
-
-/* 새로운 화살표 버튼 스타일 */
-.chevron-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 36px;
-  height: 36px;
-}
-
-.chevron-button:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 50%;
-}
-
-.chevron-button:active {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-/* 화살표 버튼 포커스 테두리 제거 */
-.chevron-button:focus {
-  outline: none;
-}
-
-/* 모든 버튼에 적용하고 싶다면 */
-button:focus {
-  outline: none;
+    background-color: #2563eb;
 }
