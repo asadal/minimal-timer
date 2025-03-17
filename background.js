@@ -83,76 +83,28 @@ function startBackgroundTimer() {
 
 // 알림 표시 함수
 function showNotification() {
-  console.log("알림 표시 시도");
+  console.log("알림 표시 시도 (브라우저 API 사용)");
 
-  try {
-    // Chrome의 알림 API를 사용해 알림 표시
-    chrome.notifications.create(
-      {
-        type: "basic",
-        iconUrl: chrome.runtime.getURL("images/icon128.png"),
-        title: "asadal Timer",
-        message: "타이머가 종료되었습니다!",
-        requireInteraction: true, // 사용자가 직접 닫을 때까지 유지
-        priority: 2, // 최대 우선순위 (0-2)
-        silent: true, // 소리 재생 안 함
-        buttons: [
-          // 버튼 추가
-          { title: "확인" },
-          { title: "5분 더" },
-        ],
-      },
-      function (notificationId) {
-        if (chrome.runtime.lastError) {
-          console.error("알림 생성 오류:", chrome.runtime.lastError);
-          return;
-        }
-
-        console.log("알림 생성됨:", notificationId);
-
-        // 알림 ID 저장
-        lastNotificationId = notificationId;
-      },
-    );
-  } catch (error) {
-    console.error("알림 생성 중 예외 발생:", error);
-  }
-}
-
-// 알림 버튼 클릭 처리
-chrome.notifications.onButtonClicked.addListener(
-  function (notificationId, buttonIndex) {
-    console.log("알림 버튼 클릭:", notificationId, buttonIndex);
-
-    if (notificationId === lastNotificationId) {
-      if (buttonIndex === 0) {
-        // "확인" 버튼 - 알림 닫기
-        chrome.notifications.clear(notificationId);
-      } else if (buttonIndex === 1) {
-        // "5분 더" 버튼 - 5분 추가 타이머 시작
-        timerState.isRunning = true;
-        timerState.totalSeconds = 5 * 60; // 5분
-        timerState.initialTotalSeconds = 5 * 60;
-        timerState.lastUpdated = Date.now();
-        timerState.endTime = Date.now() + 5 * 60 * 1000;
-
-        // 타이머 시작
-        startBackgroundTimer();
-
-        // 알림 닫기
-        chrome.notifications.clear(notificationId);
+  // 팝업 창에 알림 생성 메시지 전송
+  chrome.runtime.sendMessage(
+    {
+      type: "showBrowserNotification",
+      title: "asadal Timer",
+      message: "타이머가 종료되었습니다!",
+    },
+    function (response) {
+      if (chrome.runtime.lastError) {
+        console.error("팝업에 알림 요청 중 오류:", chrome.runtime.lastError);
+      } else {
+        console.log("팝업에 알림 요청 응답:", response);
       }
-    }
-  },
-);
+    },
+  );
 
-// 알림 클릭 처리
-chrome.notifications.onClicked.addListener(function (notificationId) {
-  console.log("알림 클릭됨:", notificationId);
-
-  // 알림 닫기
-  chrome.notifications.clear(notificationId);
-});
+  // 배지 설정 - 타이머 종료 표시
+  chrome.action.setBadgeText({ text: "종료" });
+  chrome.action.setBadgeBackgroundColor({ color: "#F87171" });
+}
 
 // 메시지 리스너
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -207,6 +159,17 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       console.error("알림 처리 중 오류:", error);
       sendResponse({ success: false, error: error.message });
     }
+  } else if (request.type === "add5Minutes") {
+    // 5분 더 요청
+    timerState.isRunning = true;
+    timerState.totalSeconds = 5 * 60; // 5분
+    timerState.initialTotalSeconds = 5 * 60;
+    timerState.lastUpdated = Date.now();
+    timerState.endTime = Date.now() + 5 * 60 * 1000;
+
+    // 타이머 시작
+    startBackgroundTimer();
+    sendResponse({ success: true });
   } else if (request.type === "createWindow") {
     // 새 창 생성 요청
     chrome.windows.create(
@@ -258,10 +221,6 @@ chrome.alarms.onAlarm.addListener(function (alarm) {
       console.log("알림 딜레이 후 실행");
       showNotification();
     }, 500);
-
-    // 배지 설정 - 타이머 종료 표시
-    chrome.action.setBadgeText({ text: "종료" });
-    chrome.action.setBadgeBackgroundColor({ color: "#F87171" });
   }
 });
 

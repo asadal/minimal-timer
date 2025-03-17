@@ -39,6 +39,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // 백그라운드 동기화 타이머
   let syncTimer;
 
+  // 브라우저 알림 권한 요청
+  requestNotificationPermission();
+
   // 처음 로드될 때 백그라운드와 상태 동기화
   syncTimerWithBackground();
 
@@ -47,6 +50,168 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 1초마다 백그라운드와 동기화
   syncTimer = setInterval(syncTimerWithBackground, 1000);
+
+  // 알림 권한 요청 함수
+  function requestNotificationPermission() {
+    // 브라우저 알림 API 지원 확인
+    if ("Notification" in window) {
+      if (
+        Notification.permission !== "granted" &&
+        Notification.permission !== "denied"
+      ) {
+        Notification.requestPermission().then(function (permission) {
+          console.log("알림 권한 상태:", permission);
+        });
+      } else {
+        console.log("현재 알림 권한 상태:", Notification.permission);
+      }
+    } else {
+      console.log("이 브라우저는 알림을 지원하지 않습니다.");
+    }
+  }
+
+  // 브라우저 알림 표시 함수
+  function showBrowserNotification(title, message) {
+    console.log("브라우저 알림 표시 시도");
+
+    if (!("Notification" in window)) {
+      console.log("이 브라우저는 알림을 지원하지 않습니다.");
+      return;
+    }
+
+    if (Notification.permission === "granted") {
+      let notification = new Notification(title, {
+        body: message,
+        icon: chrome.runtime.getURL("images/icon128.png"),
+      });
+
+      // 알림 클릭 시 처리
+      notification.onclick = function () {
+        console.log("알림 클릭됨");
+        notification.close();
+      };
+
+      // 알림 액션 버튼 (브라우저 알림 API에서는 버튼을 직접 지원하지 않아서
+      // 새로운 알림 요소를 생성하여 처리)
+      createNotificationButtons();
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(function (permission) {
+        if (permission === "granted") {
+          showBrowserNotification(title, message);
+        }
+      });
+    }
+  }
+
+  // 알림 버튼 생성 함수
+  function createNotificationButtons() {
+    // 이미 생성된 알림 버튼 요소가 있다면 제거
+    const existingNotification = document.getElementById("custom-notification");
+    if (existingNotification) {
+      document.body.removeChild(existingNotification);
+    }
+
+    // 커스텀 알림 요소 생성
+    const notificationElement = document.createElement("div");
+    notificationElement.id = "custom-notification";
+    notificationElement.className = "custom-notification";
+
+    // 알림 내용
+    notificationElement.innerHTML = `
+      <div class="notification-content">
+        <div class="notification-header">
+          <span>추가 옵션</span>
+          <button class="close-btn">&times;</button>
+        </div>
+        <div class="notification-body">
+          <button class="add-5min-btn">5분 더</button>
+        </div>
+      </div>
+    `;
+
+    // 알림 요소에 스타일 적용
+    const style = document.createElement("style");
+    style.textContent = `
+      .custom-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        overflow: hidden;
+        width: 300px;
+      }
+      .notification-content {
+        padding: 12px;
+      }
+      .notification-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .notification-header span {
+        font-weight: bold;
+      }
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: #666;
+      }
+      .notification-body {
+        margin-top: 10px;
+      }
+      .add-5min-btn {
+        background-color: #4A90E2;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+      }
+      .add-5min-btn:hover {
+        background-color: #3A80D2;
+      }
+    `;
+
+    // 문서에 스타일 추가
+    document.head.appendChild(style);
+
+    // 문서에 알림 요소 추가
+    document.body.appendChild(notificationElement);
+
+    // 닫기 버튼 이벤트
+    const closeBtn = notificationElement.querySelector(".close-btn");
+    closeBtn.addEventListener("click", function () {
+      document.body.removeChild(notificationElement);
+    });
+
+    // 5분 더 버튼 이벤트
+    const add5MinBtn = notificationElement.querySelector(".add-5min-btn");
+    add5MinBtn.addEventListener("click", function () {
+      chrome.runtime.sendMessage(
+        {
+          type: "add5Minutes",
+        },
+        function (response) {
+          console.log("5분 추가 응답:", response);
+          document.body.removeChild(notificationElement);
+        },
+      );
+    });
+
+    // 5초 후 자동으로 알림 닫기
+    setTimeout(() => {
+      if (document.body.contains(notificationElement)) {
+        document.body.removeChild(notificationElement);
+      }
+    }, 10000);
+  }
 
   // 창 크기 고정 함수
   function ensureWindowSize() {
@@ -321,32 +486,16 @@ document.addEventListener("DOMContentLoaded", function () {
   // 알림 기능
   function notifyUser() {
     console.log("팝업에서 알림 요청");
+
+    // 브라우저 알림 API 사용
+    showBrowserNotification("asadal Timer", "타이머가 종료되었습니다!");
+
+    // 백그라운드에도 알림 요청 (배지 표시 등을 위해)
     chrome.runtime.sendMessage(
       {
         type: "notification",
       },
       function (response) {
-        if (chrome.runtime.lastError) {
-          console.error("알림 요청 오류:", chrome.runtime.lastError);
-
-          // 오류 발생 시 직접 알림 생성 시도
-          try {
-            chrome.notifications.create({
-              type: "basic",
-              iconUrl: chrome.runtime.getURL("images/icon128.png"),
-              title: "asadal Timer",
-              message: "타이머가 종료되었습니다!",
-              requireInteraction: true,
-              priority: 2,
-              silent: true,
-              buttons: [{ title: "확인" }, { title: "5분 더" }],
-            });
-          } catch (err) {
-            console.error("직접 알림 생성 실패:", err);
-          }
-          return;
-        }
-
         console.log("알림 요청 응답:", response);
       },
     );
@@ -547,6 +696,21 @@ document.addEventListener("DOMContentLoaded", function () {
       e.preventDefault();
     }
   });
+
+  // 메시지 리스너
+  chrome.runtime.onMessage.addListener(
+    function (request, sender, sendResponse) {
+      console.log("팝업에서 메시지 수신:", request);
+
+      if (request.type === "showBrowserNotification") {
+        // 브라우저 알림 표시 요청 (백그라운드에서 요청)
+        showBrowserNotification(request.title, request.message);
+        sendResponse({ success: true });
+      }
+
+      return true; // 비동기 응답을 위해 true 반환
+    },
+  );
 
   // 페이지 닫힐 때 동기화 타이머 정리
   window.addEventListener("beforeunload", function () {
